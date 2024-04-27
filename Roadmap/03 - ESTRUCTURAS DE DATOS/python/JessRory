@@ -1,0 +1,206 @@
+#################### IMPORTS ####################
+
+import sys
+import csv
+
+#################### FUNCTIONS and STRUCTURES ###################
+
+dicc = {}
+
+def pregunta():
+    
+    accion = input(""" ¿Qué acción desea realizar?
+                   
+                        Insertar.
+                        Modificar.
+                        Borrar.
+                        Buscar.
+                        Guardar.
+                        Cerrar.
+                                         
+                   """)
+    
+    
+    accion = accion.lower()
+    return accion
+
+def switch(eleccion):
+       
+    match eleccion:
+        
+        case 'insertar':
+            
+            insertar(diccionario=dicc)
+                        
+        case 'modificar':
+            
+            modificar(diccionario=dicc)
+            
+        case 'borrar':
+            
+            borrar(diccionario=dicc)
+        
+        case 'buscar':
+            
+            buscar(diccionario=dicc)
+                
+        case 'guardar':
+            
+            guardar(diccionario=dicc)
+                   
+        case 'cerrar':
+            
+            cerrar(diccionario=dicc)
+            
+        case _:
+            
+            print('Opción no valida, vuelva a intentarlo, por favor:')
+
+def insertar(diccionario):
+ 
+    accion = input('Desea añadir un teléfono a la agenda? (Sí/No): ')
+                
+    while accion.lower().strip() != 'no':
+                 
+        nombre = input('Ingrese el nombre, por favor: ')
+        telefono = input('Ingrese el número de teléfono, por favor: ')
+        
+        if len(telefono) == 9 and telefono.isnumeric() == True:
+            diccionario[nombre] = telefono
+            accion = input('Desea añadir un teléfono a la agenda? (Sí/No): ')
+            accion.lower().strip()
+                    
+        else:
+            print('Teléfono no válido')
+     
+    print(f'La agenda contiene las siguientes entradas:\n{dicc}')
+    
+    salida = input('Desea realizar alguna otra acción?: ')
+    
+    if salida.lower().strip() == 'si' or salida.lower().strip() == 'sí':
+        switch(pregunta())
+      
+    return diccionario
+
+def modificar(diccionario=dicc):
+    
+    # Pedir el nombre del contacto:
+    nombre = input('Cuál es el nombre del contacto que desea modificar?: ')
+    # Buscarlo en el diccionario:
+    if nombre.strip() in dicc.keys():
+        # Pedir la modificación: Nombre o teléfono:
+        accion = input('Desea modificar el nombre del contacto o el teléfono?: ')
+        
+        # Si se quiere cambiar el nombre:
+        if accion.lower().strip() == 'nombre':
+            nuevo_nombre = input('Ingrese la modificación, por favor: ')
+            dicc[nuevo_nombre] = dicc.pop(nombre)
+            print(f'La nueva agenda es: {dicc}')
+            
+            salida = input('Desea realizar alguna otra acción?: ')
+    
+            if salida.lower().strip() == 'si' or salida.lower().strip() == 'sí':
+                switch(pregunta())
+                
+            return dicc
+        
+        else:
+            nuevo_telefono = input('Ingrese el nuevo teléfono, por favor: ')
+            dicc[nombre] = nuevo_telefono
+            return dicc
+            
+        # Pedir el nuevo nombre.
+        # Cambiarlo en el diccionario
+    else:
+        
+        print('Lo sentimos, pero el contacto no está en la agenda.')
+    # Si es el número:
+        # Pedir el nuevo número.
+        # Cambiarlo en el diccionario
+        print(f'Esta es la agenda guardada:\n{dicc}')
+        opcion = input('Desea proseguir el proceso de modificación? (Sí/No): ')
+        if opcion.lower().strip() != 'no':
+            
+            modificar()
+            
+def borrar(diccionario=dicc):
+    
+    contacto = input('Ingrese el contacto para borrar: ')
+    
+    if contacto in dicc:
+        
+        dicc.pop(contacto)
+        
+        print(f'La agenda contiene las siguientes entradas: \n{dicc}')
+        
+        accion = input('¿Desea realizar alguna otra acción? (Sí/No): ')
+        
+        if accion.lower().strip() != 'no':
+            
+            pregunta()
+            
+            return dicc
+        
+def buscar(diccionario=dicc):
+    
+    contacto = input('Ingrese el nombre del contacto a buscar, por favor: ')
+    
+    if contacto in dicc.keys():
+        
+        print(f'{contacto}: {dicc[contacto]}')
+        
+        accion = input('Desea relaizar alguna otra acción? (Sí/No): ')
+        
+        if accion.lower().strip() != 'no':
+            
+            pregunta()
+            
+        else:
+            
+            cerrar(diccionario=dicc)
+            
+    else:
+        
+        print('El contacto no se ha encontrado en la agenda.\n')
+        
+        repeticion = input('Desea repetir la búsqueda? (Sí/No)')
+        
+        if repeticion.lower().strip() != 'no':
+            
+            buscar(diccionario=dicc)
+            
+        else:
+            
+            accion = input('Desea relaizar alguna otra acción? (Sí/No): ')
+        
+            if accion.lower().strip() != 'no':
+            
+                pregunta()
+            
+            else:
+            
+                cerrar(diccionario=dicc)
+
+def guardar(diccionario=dicc):
+    
+    campos = ['Nombre', 'Teléfono']
+    
+    with open('Agenda.csv', 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=campos)
+        writer.writeheader()
+        for nombre, telefono in dicc.items():
+            fila = {'Nombre': nombre, 'Teléfono': telefono}
+            writer.writerow(fila)
+            
+        print('La agenda se ha guardado correctamente')
+        
+def cerrar(diccionario):
+    
+    print(f'La agenda contiene las siguientes entradas: {dicc}')
+    print('Cerrando el programa...')
+    sys.exit() 
+
+  
+#################### MAIN PROGRAM ####################
+
+switch(pregunta())
